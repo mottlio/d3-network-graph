@@ -45,6 +45,7 @@ var simulation = d3.forceSimulation(nodes)
     });
 
     graph(nodes, links);
+    setUpCheckboxes(nodes.columns.slice(2));
 
 function graph(nodeData, linkData){
     var partyScale = d3.scaleOrdinal()
@@ -84,6 +85,45 @@ function graph(nodeData, linkData){
     linkUpdate  
         .enter()
         .append("line");
+}
+
+function setUpCheckboxes(committees){
+    var boxAreas = d3.select("#checkboxes")
+        .selectAll("div")
+        .data(committees)
+        .enter()
+        .append("div");
+
+    boxAreas    
+        .append("label")
+        .property("for", d => d)
+        .text(d => d);
+
+    boxAreas
+        .append("input")
+        .property("type", "checkbox")
+        .property("name", "committee")
+        .property("value", d => d)
+        .property("checked", true)
+        .on("click", () => {
+            var activeCommittees = committees.filter(
+                c => d3.select(`input[value="${c}"]`)
+                .property("checked"));
+            var newNodes = nodes.map(n => {
+                return {
+                    name: n.name,
+                    party: n.party,
+                    committees: n.committees.filter(c => 
+                      activeCommittees.includes(c)),
+                    x: n.x,
+                    y: n.y,
+                    vx: n.vx,
+                    vy: n.vy
+                }
+            }).filter(n => n.committees.length > 0);
+            var newLinks = makeLinks(newNodes);
+            graph(newNodes, newLinks);
+        });
 }
 
 function showTooltip(d) {
