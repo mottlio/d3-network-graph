@@ -86,6 +86,45 @@ function graph(nodeData, linkData){
         .append("line");
 }
 
+function showTooltip(d) {
+    var tooltip = d3.select(".tooltip");
+    tooltip
+        .style("opacity", 1)
+        .style("left", (d3.event.x - tooltip.node().offsetWidth / 2) + "px")
+        .style("top", (d3.event.y + 10) + "px")
+        .html(() => {
+            var committees = d.committees.map(c => `
+            <li>${c}</li>`).join('')
+            return `
+            <p>${d.name} (${d.party})</p>
+            <p>Committees</p>
+            <ol>${committees}</ol>
+            `
+        })
+}
+
+function hideTooltip(){
+    d3.select(".tooltip")
+        .style("opacity", 0);
+}
+
+function dragStart(d){
+    simulation.alphaTarget(0.5).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+
+function drag(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+}
+
+function dragEnd(d) {
+    simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+}
+
 function makeLinks(nodes){
     var links = [];
     for (var i = 0; i < nodes.length; i++) {
