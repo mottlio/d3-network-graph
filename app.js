@@ -41,13 +41,49 @@ var simulation = d3.forceSimulation(nodes)
         nodeGp
             .selectAll("circle")
                 .attr("cx", d => d.x)
-                .attr("cy")
+                .attr("cy", d => d.y)
     });
+
+    graph(nodes, links);
 
 function graph(nodeData, linkData){
     var partyScale = d3.scaleOrdinal()
                         .domain(["D", "R", "I"])
                         .range(["blue", "red", "#ccc"]);
+    
+    var nodeUpdate = nodeGp
+                        .selectAll("circle")
+                        .data(nodeData, d => d.name);
+
+    nodeUpdate  
+        .exit()
+        .remove();
+
+    nodeUpdate
+        .enter()
+        .append("circle")
+            .attr("r", 15)
+            .attr("fill", d => partyScale(d.party))
+            .attr("stroke", "white")
+            .attr("stroke-width", 3)
+            .call(d3.drag()
+                        .on("start", dragStart)
+                        .on("drag", drag)
+                        .on("end", dragEnd))
+            .on("mousemove touchmove", showTooltip)
+            .on("mouseout touchend", hideTooltip)
+
+    var linkUpdate = linkGp
+        .selectAll("line")
+        .data(linkData, d => d.source.name + d.target.name); //link source will not be unique but the combination of both will be
+
+    linkUpdate  
+        .exit()
+        .remove();
+
+    linkUpdate  
+        .enter()
+        .append("line");
 }
 
 function makeLinks(nodes){
