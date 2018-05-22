@@ -123,7 +123,11 @@ function setUpCheckboxes(committees){
             }).filter(n => n.committees.length > 0);
             var newLinks = makeLinks(newNodes);
             graph(newNodes, newLinks);
-        });
+            simulation.nodes(newNodes)
+                        .force("link")
+                        .links(newLinks);
+            simulation.alpha(0.5).restart();
+                });
 }
 
 function showTooltip(d) {
